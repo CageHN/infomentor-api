@@ -1,8 +1,8 @@
 # Secrets and session files
-credentials.json
-cookies.json
-cookiefile
-auth
+/credentials.json
+/cookies.json
+/cookiefile
+/auth
 *.cookies
 
 # Python
