@@ -1,0 +1,7 @@
+The OpenAPI document in this directory is copied from the MIT-licensed
+EduPatch SmilingSchool Hub specification:
+
+  https://github.com/EduPatch/smilingschool_api
+
+It is included as a reference for Hub paths and payloads. The Python client
+in this repository is an independent implementation.

@@ -1,0 +1,5095 @@
+openapi: 3.0.3
+info:
+  description: A swagger schema of the InfoMentor Hub API
+  title: SmilingSchool Hub Swagger API
+  version: 1.1.0
+components:
+  schemas:
+    notificationState:
+      type: string
+      enum:
+      - New
+      - Seen
+      - Read
+      - Cleared
+    appType:
+      type: string
+      enum:
+      - Timeline
+      - Assignment
+      - News
+      - Assessment
+      - WeeklyPlan
+      - HomeWork
+      - Portfolio
+      - Calendar
+      - CalendarV2
+      - ParentMeeting
+      - Uol
+      - OnlineTest
+      - Survey
+      - Unknown
+      - Attendance
+      - IUP
+      - SpecialPlan
+      - Journal
+      - Consent
+    attendanceHeader:
+      type: object
+      properties:
+        displayText:
+          type: string
+        isSortable:
+          type: boolean
+        sortField:
+          type: string
+        sortBy:
+          type: boolean
+        sortDesc:
+          type: boolean
+    attendanceFilter:
+      type: object
+      properties:
+        defaultText:
+          type: string
+        options:
+          type: array
+          items: {}
+        type:
+          type: string
+        name:
+          type: string
+        displayName:
+          type: string
+security: []
+tags:
+- name: Account
+  description: Account API category
+- name: AssessmentV2
+  description: The API app for assessments
+- name: Attendance
+  description: The API app for attendance
+- name: Authentication
+  description: The API app for authentication
+- name: CalendarV2
+  description: The API app for the calendar
+- name: Classlist
+  description: The API for classlists, School Personnel, classmates, etc.
+- name: Communication
+  description: The API app for communication
+- name: Documentation
+  description: The API app for documentation/notes
+- name: NotificationApp
+  description: The API app for notifications
+- name: Resources
+  description: Resource API
+- name: Task
+  description: The API for tasks
+- name: Timeregistration
+  description: The API for "freetime planning"
+- name: Timetable
+  description: The API app for the timetable
+- name: UolV2
+  description: The API for the planning app
+paths:
+  /NotificationApp/NotificationApp/GetNotifications:
+    description: Get all user notifications, timetstamp is optional
+    post:
+      tags:
+      - NotificationApp
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                timestamp:
+                  type: string
+                  format: date-time
+      responses:
+        default:
+          description: Responds with a list of notification entries depending on the
+            timestamp supplied
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  notifications:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        title:
+                          type: string
+                        subTitle:
+                          type: string
+                        subjectsCourses:
+                          type: string
+                        dateSent:
+                          type: string
+                          format: date-time
+                        appType:
+                          $ref: '#/components/schemas/appType'
+                        state:
+                          $ref: '#/components/schemas/notificationState'
+                        type:
+                          type: string
+                        url:
+                          type: string
+                        orderDate:
+                          type: string
+                          format: date-time
+                        pupilIM2Id:
+                          type: integer
+                        pupilSourceId:
+                          type: string
+                        currentlySelectedPupil:
+                          type: boolean
+                        entityTypeString:
+                          type: string
+                  timestamp:
+                    type: string
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  notifications:
+                    type: array
+                    items: {}
+                  timestamp:
+                    type: string
+  /NotificationApp/NotificationApp/UpdateNotificationState:
+    description: Update notification states
+    post:
+      tags:
+      - NotificationApp
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                ids:
+                  type: array
+                  items:
+                    type: integer
+                state:
+                  $ref: '#/components/schemas/notificationState'
+      responses:
+        default:
+          description: Responds with a success value of true or false
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+  /authentication/authentication/isauthenticated:
+    post:
+      tags:
+      - Authentication
+      description: Retreive if user is authenticated or not
+      parameters:
+      - name: _
+        in: query
+        description: Parameter to provide a timestamp. Purpose is unknown
+        required: false
+        schema:
+          type: number
+      responses:
+        '200':
+          description: Always returns 200, but the content actually determines if
+            it was successful or not!
+          content:
+            application/json:
+              schema:
+                type: boolean
+  /attendance/attendance/appData:
+    post:
+      tags:
+      - Attendance
+      description: Retreive data for the app such as field texts, translations, etc.
+      parameters:
+      - name: _
+        in: query
+        description: Parameter to provide a timestamp. Purpose is unknown
+        required: false
+        schema:
+          type: number
+      responses:
+        '200':
+          description: Always returns 200, but the content actually determines if
+            it was successful or not!
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  pagedList:
+                    type: object
+                    properties:
+                      translations:
+                        type: object
+                        properties:
+                          listTitle:
+                            type: string
+                          paging:
+                            type: string
+                          filter:
+                            type: string
+                      headers:
+                        type: object
+                        properties:
+                          date:
+                            $ref: '#/components/schemas/attendanceHeader'
+                          time:
+                            $ref: '#/components/schemas/attendanceHeader'
+                          subject:
+                            $ref: '#/components/schemas/attendanceHeader'
+                          reason:
+                            $ref: '#/components/schemas/attendanceHeader'
+                      filters:
+                        type: object
+                        properties:
+                          translations:
+                            type: object
+                            properties:
+                              apply:
+                                type: string
+                              clear:
+                                type: string
+                          filters:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/attendanceFilter'
+                      listUrl:
+                        type: string
+                        format: uri
+                      itemUrl:
+                        type: string
+                        format: uri
+                        nullable: true
+                      page:
+                        type: integer
+                      pageSize:
+                        type: integer
+                      totalItems:
+                        type: integer
+                      items:
+                        type: array
+                        items: {}
+                      allItemIds:
+                        type: array
+                        items: {}
+                        nullable: true
+                      more:
+                        type: array
+                        items: {}
+                        nullable: true
+                  leaveRequests:
+                    type: array
+                    items: {}
+                  absenceTodaySessions:
+                    type: array
+                    items: {}
+                  absenceTomorrowSessions:
+                    type: array
+                    items: {}
+                  autoConfirmAbsence:
+                    type: boolean
+                  absentToday:
+                    type: boolean
+                  absenceTodayComment:
+                    type: string
+                    nullable: true
+                  absentTomorrow:
+                    type: boolean
+                  absenceTomorrowComment:
+                    type: string
+                    nullable: true
+                  absenceTodayLocked:
+                    type: boolean
+                  absenceTomorrowLocked:
+                    type: boolean
+                  canRegisterDayAbsence:
+                    type: boolean
+                  canRegisterSessionAbsence:
+                    type: boolean
+                  isIcelandic:
+                    type: boolean
+                  canRegisterSession:
+                    type: boolean
+                  showSubjects:
+                    type: boolean
+                  showComment:
+                    type: boolean
+                  showFilter:
+                    type: boolean
+                  isPlaySchool:
+                    type: boolean
+                  absenceTodayDate:
+                    type: string
+                    format: date
+                  absenceTomorrowDate:
+                    type: string
+                    format: date
+                  canAddSicknessToday:
+                    type: boolean
+                  canAddSicknessTomorrow:
+                    type: boolean
+                  isParent:
+                    type: boolean
+                  hasLeaveLicence:
+                    type: boolean
+                  canRequestLeave:
+                    type: boolean
+                  hasLeaveTwoGuardiansLicence:
+                    type: boolean
+                  isOnlyOneGuardianRegistered:
+                    type: boolean
+                  isOver18Pupil:
+                    type: boolean
+                  translations:
+                    type: object
+                    properties:
+                      reportSickness:
+                        type: string
+                      absenceReport:
+                        type: string
+                      registrationDetails:
+                        type: string
+                      dateLabel:
+                        type: string
+                      timeLabel:
+                        type: string
+                      subjectLabel:
+                        type: string
+                      reasonLabel:
+                        type: string
+                      registeredByLabel:
+                        type: string
+                      fromLabel:
+                        type: string
+                      comments:
+                        type: string
+                      today:
+                        type: string
+                      tomorrow:
+                        type: string
+                      dateToday:
+                        type: string
+                      dateTomorrow:
+                        type: string
+                      clickToChange:
+                        type: string
+                      markedAsPresent:
+                        type: string
+                      markedAsAbsent:
+                        type: string
+                      absenceInToday:
+                        type: string
+                      absenceAwayToday:
+                        type: string
+                      absenceAwayTodayLocked:
+                        type: string
+                      absenceInTomorrow:
+                        type: string
+                      absenceAwayTomorrow:
+                        type: string
+                      absenceAwayTomorrowLocked:
+                        type: string
+                      minutesLabel:
+                        type: string
+                      halfDaysCount:
+                        type: string
+                      pageCount:
+                        type: string
+                      returnToList:
+                        type: string
+                      prevItem:
+                        type: string
+                      nextItem:
+                        type: string
+                      apply:
+                        type: string
+                      clear:
+                        type: string
+                      save:
+                        type: string
+                      edit:
+                        type: string
+                      commentPlaceHolder:
+                        type: string
+                      details:
+                        type: string
+                      reportAbsence:
+                        type: string
+                      absenceReported:
+                        type: string
+                      reportedAbsent:
+                        type: string
+                      reportAbsenceBannerMessage:
+                        type: string
+                      reportAbsenceSubmitAbsence:
+                        type: string
+                      reportNewAbsence:
+                        type: string
+                      reportAbsenceApproved:
+                        type: string
+                      reportAbsencePending:
+                        type: string
+                      reportAbsenceAdvisoryTextPupil:
+                        type: string
+                      allDay:
+                        type: string
+                      reportAbsencePanelTitle:
+                        type: string
+                      reportSicknessLeave:
+                        type: string
+                      attendaceAlreadyRecorded:
+                        type: string
+                      pastAttendance:
+                        type: string
+                      pastAttendances:
+                        type: string
+                      leaveRequestPanelTitle:
+                        type: string
+                      leaveRequestRequestLeave:
+                        type: string
+                      commonPending:
+                        type: string
+                      leaveRequestApprovedStatus:
+                        type: string
+                      leaveRequestRejectedStatus:
+                        type: string
+                      leaveRequestDateFrom:
+                        type: string
+                      leaveRequestDateTo:
+                        type: string
+                      leaveRequestTimeFrom:
+                        type: string
+                      leaveRequestTimeTo:
+                        type: string
+                      leaveRequestDetailsPattern:
+                        type: string
+                      leaveRequestDeleteButtonText:
+                        type: string
+                      leaveRequestRequiredFieldsText:
+                        type: string
+                      leaveRequestDeleteDialogTitle:
+                        type: string
+                      leaveRequestDeleteDialogText:
+                        type: string
+                      commonCancel:
+                        type: string
+                      commonDelete:
+                        type: string
+                      commonNoResultsText:
+                        type: string
+                      commonSelectableListOfTimes:
+                        type: string
+                      leaveRequestSubmitRequest:
+                        type: string
+                      leaveRequestValidationMustFillBothTimesOrNeither:
+                        type: string
+                      leaveRequestValidationToMustBeAfterFrom:
+                        type: string
+                      leaveRequestSummaryDialogTitle:
+                        type: string
+                      leaveRequestRequestDetails:
+                        type: string
+                      leaveRequestDateFromTo:
+                        type: string
+                      leaveRequestApplicationSubmittedBy:
+                        type: string
+                      leaveRequestStatus:
+                        type: string
+                      leaveRequestApprovalDetails:
+                        type: string
+                      leaveRequestDeniedDetails:
+                        type: string
+                      leaveRequestApprovedBy:
+                        type: string
+                      leaveRequestDeniedBy:
+                        type: string
+                      leaveRequestNotes:
+                        type: string
+                      leaveRequestDeniedStatus:
+                        type: string
+                      leaveRequestDeleteNotAllowedText:
+                        type: string
+                      leaveRequestDeleteNotAllowedWhenApprovedDeniedText:
+                        type: string
+                      commonExpired:
+                        type: string
+                      leaveRequestOnlyOneGuardianRegistered:
+                        type: string
+                      leaveRequestMustBeApprovedSecondaryGuardianNotificationWillBeSend:
+                        type: string
+                      leaveRequestOnceYouSubmitItWillPending:
+                        type: string
+                      leaveRequestAwaitingSecondaryApproval:
+                        type: string
+                      leaveRequestAwaitingSchoolDecision:
+                        type: string
+                      leaveRequestDeniedBySecondaryGuardian:
+                        type: string
+                      commonDeniedByYou:
+                        type: string
+                      leaveRequestApprove:
+                        type: string
+                      leaveRequestOnlySubmitterCanRemove:
+                        type: string
+                      leaveRequestAwaitingYourApproval:
+                        type: string
+                      leaveRequestExpiredNoActionTaken:
+                        type: string
+                      leaveRequestDenyRequest:
+                        type: string
+                      reportAbsenceAdvisoryText:
+                        type: string
+                  urls:
+                    type: object
+                    properties:
+                      registerAttendance:
+                        type: string
+                        format: uri
+                      registerSessionAttendance:
+                        type: string
+                        format: uri
+                      saveAbsenceComment:
+                        type: string
+                        format: uri
+                      createLeaveRequest:
+                        type: string
+                        format: uri
+                      getLeaveRequestList:
+                        type: string
+                        format: uri
+                      deleteLeaveRequest:
+                        type: string
+                        format: uri
+                      setSecondaryStatus:
+                        type: string
+                        format: uri
+  /authentication/authentication/login:
+    get:
+      summary: GET login
+      description: Login page, please read LOGIN.md
+      tags:
+      - Authentication
+      responses:
+        '200':
+          description: OK
+          content: {}
+      parameters:
+      - name: apitype
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: forceOAuth
+        in: query
+        required: false
+        schema:
+          type: string
+  /Authentication/Authentication/LoginCallback:
+    get:
+      summary: GET logincallback
+      description: Login callback, please read LOGIN.md
+      tags:
+      - Authentication
+      responses:
+        '200':
+          description: OK
+          content: {}
+      parameters:
+      - name: apitype
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: oauth_verifier
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: oauth_token
+        in: query
+        required: false
+        schema:
+          type: string
+    post:
+      summary: POST appdata
+      description: Login callback, please read LOGIN.md
+      tags:
+      - Authentication
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  notifications:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: number
+                        title:
+                          type: string
+                        subTitle:
+                          type: string
+                        subjectsCourses:
+                          type: string
+                        dateSent:
+                          type: string
+                        appType:
+                          type: string
+                        state:
+                          type: string
+                        type:
+                          type: string
+                        url:
+                          type: string
+                        orderDate:
+                          type: string
+                        pupilIM2Id:
+                          type: number
+                        pupilSourceId:
+                          type: string
+                        currentlySelectedPupil:
+                          type: boolean
+                        entityTypeString:
+                          type: string
+                  timestamp:
+                    type: string
+                  translations:
+                    type: object
+                    properties:
+                      title:
+                        type: string
+                      notificationsCleared:
+                        type: string
+                      noNotifications:
+                        type: string
+                      pupilName:
+                        type: string
+                      clearList:
+                        type: string
+                      undo:
+                        type: string
+                      timeFormatJustNow:
+                        type: string
+                      timeFormatMinutes:
+                        type: string
+                      timeFormatHours:
+                        type: string
+                      timeFormatYesterday:
+                        type: string
+                      new:
+                        type: string
+                  urls:
+                    type: object
+                    properties:
+                      getAppNotifications:
+                        type: string
+                      updateState:
+                        type: string
+  /calendarv2/calendarv2/appData:
+    post:
+      summary: POST appdata
+      description: Get calendar appData
+      tags:
+      - CalendarV2
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  todayDate:
+                    type: string
+                  calendarEntryTypes:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: number
+                        name:
+                          type: string
+                        colour:
+                          type: string
+                        className:
+                          type: string
+                        isCustomType:
+                          type: boolean
+                  hasCustomSchoolLogo:
+                    type: boolean
+                  translations:
+                    type: object
+                    properties:
+                      wholeWeek:
+                        type: string
+                      week:
+                        type: string
+                      events:
+                        type: string
+                      mondayAbbrv:
+                        type: string
+                      tuesdayAbbrv:
+                        type: string
+                      wednesdayAbbrv:
+                        type: string
+                      thursdayAbbrv:
+                        type: string
+                      fridayAbbrv:
+                        type: string
+                      saturdayAbbrv:
+                        type: string
+                      sundayAbbrv:
+                        type: string
+                      noResultsDay:
+                        type: string
+                      noResultsWeek:
+                        type: string
+                      clickToOpenSurvey:
+                        type: string
+                      clickToOpenTask:
+                        type: string
+                      file:
+                        type: string
+                      downloadAttachment:
+                        type: string
+                      jumpToWeek:
+                        type: string
+                      nextWeek:
+                        type: string
+                      lastWeek:
+                        type: string
+                      exportCalendar:
+                        type: string
+                      exportSubscriptionText:
+                        type: string
+                      subscribe:
+                        type: string
+                      exportCopyUrlText:
+                        type: string
+                      copyUrlToClipboard:
+                        type: string
+                      print:
+                        type: string
+                      printDate:
+                        type: string
+                  urls:
+                    type: object
+                    properties:
+                      getEntries:
+                        type: string
+                      getAttachments:
+                        type: string
+                      exportCalendar:
+                        type: string
+                      getEstablishmentLogo:
+                        type: string
+                      getIcalSubscriptionUri:
+                        type: string
+                      getO365EventDescription:
+                        type: string
+      parameters:
+      - name: _
+        in: query
+        required: false
+        schema:
+          type: number
+  /calendarv2/calendarv2/getentries:
+    post:
+      summary: POST getentries
+      description: Get calendar events as an array of objects
+      tags:
+      - CalendarV2
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: number
+                    o365EventId:
+                      type: number
+                      nullable: true
+                    googleEventId:
+                      type: number
+                      nullable: true
+                    title:
+                      type: string
+                    text:
+                      type: string
+                    calendarEntryTypeId:
+                      type: number
+                    isAllDayEvent:
+                      type: boolean
+                    startDateFull:
+                      type: string
+                    endDateFull:
+                      type: string
+                    startDate:
+                      type: string
+                    endDate:
+                      type: string
+                    formattedStartDate:
+                      type: string
+                    formattedEndDate:
+                      type: string
+                    startTime:
+                      type: string
+                    endTime:
+                      type: string
+                    hasAttachments:
+                      type: boolean
+                    subjects:
+                      type: array
+                      items: 
+                        type: object
+                        properties:
+                          id: 
+                            type: number
+                          title:
+                            type: string
+                    courses:
+                      type: array
+                      items: {}
+                    url:
+                      type: string
+                      nullable: true
+                    description:
+                      type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                startDate:
+                  type: string
+                endDate:
+                  type: string
+  /calendarv2/calendarv2/geticalsubscriptionuri:
+    post:
+      summary: POST getIcalSubscriptionUri
+      description: Get the calendar subscription URL to use in calendars. Responds with a link using the webcal:// protocol! Also responds with quotes
+      tags:
+        - CalendarV2
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json; charset=utf-8:
+              schema:
+                type: string
+                example: "webcal://im2-api.infomentor.se/V1/CalendarV2/IcalSubscription/Subscription/f3f2e850-b5d4-11ef-ac7e-96584d5248b2"
+
+  /timetable/timetable/appData:
+    post:
+      summary: POST appdata
+      description: Get timetable appData
+      tags:
+      - Timetable
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  maxDate:
+                    type: string
+                  minDate:
+                    type: string
+                  startingHour:
+                    type: string
+                  numberOfDays:
+                    type: number
+                  endingHour:
+                    type: string
+                  translations:
+                    type: object
+                    properties:
+                      informationFrom:
+                        type: string
+                      notes:
+                        type: string
+                      room:
+                        type: string
+                      additionalInformation:
+                        type: string
+                      time:
+                        type: string
+                      lessonTitle:
+                        type: string
+                      lessonInformation:
+                        type: string
+                      jumpToDate:
+                        type: string
+                      tutors:
+                        type: string
+                      printHeader:
+                        type: object
+                      gotoToday:
+                        type: string
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        start:
+                          type: string
+                        end:
+                          type: string
+                        title:
+                          type: string
+                        startTime:
+                          type: string
+                        endTime:
+                          type: string
+                        notes:
+                          type: object
+                          properties:
+                            roomInfo:
+                              type: string
+                            timetableNotes:
+                              type: string
+                            tutors:
+                              type: string
+                        allDay:
+                          type: boolean
+                        establishmentName:
+                          type: object
+                        details:
+                          type: string
+                  shortDatePattern:
+                    type: string
+                  appendRoomNameToTitle:
+                    type: boolean
+      parameters:
+      - name: _
+        in: query
+        required: false
+        schema:
+          type: number
+  /timetable/timetable/gettimetablelist:
+    post:
+      summary: POST gettimetablelist
+      description: Get timetables in form of an array of objects
+      tags:
+      - Timetable
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    start:
+                      type: string
+                    end:
+                      type: string
+                    title:
+                      type: string
+                    startTime:
+                      type: string
+                    endTime:
+                      type: string
+                    notes:
+                      type: object
+                      properties:
+                        roomInfo:
+                          type: string
+                        timetableNotes:
+                          type: string
+                        tutors:
+                          type: string
+                    allDay:
+                      type: boolean
+                    establishmentName:
+                      type: object
+                    details:
+                      type: string
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                UTCOffset:
+                  type: string
+                start:
+                  type: string
+                end:
+                  type: string
+  /documentation/documentation/appData:
+    post:
+      summary: POST appdata
+      description: Get documentation appData
+      tags:
+      - Documentation
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tabs:
+                    type: array
+                    items:
+                      type: string
+                  thirdSecurityInitData:
+                    type: object
+                  isGuardian:
+                    type: boolean
+                  loggedInUserIM2Id:
+                    type: number
+                  translations:
+                    type: object
+                    properties:
+                      documentation:
+                        type: string
+                      documentationTypeTabs:
+                        type: string
+                      journal:
+                        type: string
+                      journalNoResults:
+                        type: string
+                      on:
+                        type: string
+                      by:
+                        type: string
+                      journalEntry:
+                        type: string
+                      iup:
+                        type: string
+                      term:
+                        type: string
+                      version:
+                        type: string
+                      current:
+                        type: string
+                      status:
+                        type: string
+                      inProgress:
+                        type: string
+                      complete:
+                        type: string
+                      iupNoResults:
+                        type: string
+                      more:
+                        type: string
+                      portfolio:
+                        type: string
+                      portfolioNoResults:
+                        type: string
+                      specialPlan:
+                        type: string
+                      specialPlanNoResults:
+                        type: string
+                      onGoing:
+                        type: string
+                      finished:
+                        type: string
+                      createdBy:
+                        type: string
+                      lastEditedBy:
+                        type: string
+                      finishedBy:
+                        type: string
+                      attachments:
+                        type: string
+                      file:
+                        type: string
+                      download:
+                        type: string
+                  urls:
+                    type: object
+                    properties:
+                      getJournalList:
+                        type: string
+                      getPupilIUPFilter:
+                        type: string
+                      getPupilIUPData:
+                        type: string
+                      portfolioAppData:
+                        type: string
+                      getSpecialPlan:
+                        type: string
+                      getSpecialPlanVersion:
+                        type: string
+      parameters:
+      - name: _
+        in: query
+        required: false
+        schema:
+          type: number
+  /Documentation/Journal/GetJournalList:
+    post:
+      summary: UNDOCUMENTED | POST getjournallist
+      description: Get documentation journal
+      tags:
+      - Documentation
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  entries:
+                    type: array
+                    items: {}
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                pageSize:
+                  type: number
+  /assessmentv2/assessmentv2/appData:
+    post:
+      summary: POST appdata
+      description: Get appData for assessments
+      tags:
+      - AssessmentV2
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  navigationModel:
+                    type: object
+                    properties:
+                      uolItemsList:
+                        type: array
+                        items: {}
+                      gridItemsList:
+                        type: array
+                        items: {}
+                      selfAssessmentItemsList:
+                        type: array
+                        items: {}
+                      navigationItemsList:
+                        type: array
+                        items: {}
+                  thirdSecurityInitData:
+                    type: object
+                  isImpersonator:
+                    type: boolean
+                  academicYearItems:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        key:
+                          type: string
+                        value:
+                          type: string
+                        selected:
+                          type: boolean
+                  enableGradeReport:
+                    type: boolean
+                  gradeReportTerms:
+                    type: object
+                  summaryAssessmentTerms:
+                    type: array
+                    items: {}
+                  summaryAssessmentTermsLgr22:
+                    type: array
+                    items: {}
+                  enableSummaryAssessment:
+                    type: boolean
+                  enableSummaryAssessmentLgr22:
+                    type: boolean
+                  isGymnasium:
+                    type: boolean
+                  translations:
+                    type: object
+                    properties:
+                      newFlag:
+                        type: string
+                      noAssessmentsExist:
+                        type: string
+                      newAssessmentsInOtherFilters:
+                        type: string
+                      newAssessmentInOtherFilters:
+                        type: string
+                      noAssessmentsForDateRange:
+                        type: string
+                      lblCurriculum:
+                        type: string
+                      lblUOL:
+                        type: string
+                      lblAssignments:
+                        type: string
+                      lblLearningSteps:
+                        type: string
+                      lblEvidence:
+                        type: string
+                      lblNoEvidence:
+                        type: string
+                      lblComments:
+                        type: string
+                      lblNoComments:
+                        type: string
+                      lblProgress:
+                        type: string
+                      lblAllUpdates:
+                        type: string
+                      lblCompleteList:
+                        type: string
+                      lblSummaryStatements:
+                        type: string
+                      lblCurriculumStatements:
+                        type: string
+                      lblSummaryStatement:
+                        type: string
+                      lblCurriculumStatement:
+                        type: string
+                      lblPageCount:
+                        type: string
+                      lblNextItem:
+                        type: string
+                      lblPreviousItem:
+                        type: string
+                      lblAssessments:
+                        type: string
+                      lblLoading:
+                        type: string
+                      lblCommentOnly:
+                        type: string
+                      lblNotAvailableOnMobile:
+                        type: string
+                      lblNoDesc:
+                        type: string
+                      lblSubjects:
+                        type: string
+                      lblUnits:
+                        type: string
+                      lblShowCompleteCurriculum:
+                        type: string
+                      lblShowAllStatements:
+                        type: string
+                      lblNoStatements:
+                        type: string
+                      noAssessmentsInYear:
+                        type: string
+                      lblSelfAssessment:
+                        type: string
+                      showTeacherMarks:
+                        type: string
+                      hideTeacherMarks:
+                        type: string
+                      enterNewComment:
+                        type: string
+                      add:
+                        type: string
+                      delete:
+                        type: string
+                      edit:
+                        type: string
+                      update:
+                        type: string
+                      cancel:
+                        type: string
+                      confirmLeave:
+                        type: string
+                      leave:
+                        type: string
+                      stay:
+                        type: string
+                      updateAssessment:
+                        type: string
+                      assessmentSaved:
+                        type: string
+                      enterMark:
+                        type: string
+                      confirmDeleteComment:
+                        type: string
+                      invalidMark:
+                        type: string
+                      invalidMarkOption:
+                        type: string
+                      academicYear:
+                        type: string
+                      assessments:
+                        type: string
+                      assessmentReports:
+                        type: string
+                      compactOverview:
+                        type: string
+                      courses:
+                        type: string
+                      currentAcademicYear:
+                        type: string
+                      detailedView:
+                        type: string
+                      download:
+                        type: string
+                      graphicalOverview:
+                        type: string
+                      graphicalOverviewAndCurriculumStatements:
+                        type: string
+                      or:
+                        type: string
+                      reports:
+                        type: string
+                      reportType:
+                        type: string
+                      multiSelectSelection:
+                        type: string
+                      multiSelectAllItems:
+                        type: string
+                      noResults:
+                        type: string
+                      selectAll:
+                        type: string
+                      selectASubject:
+                        type: string
+                      selectACourse:
+                        type: string
+                      generalCommentsDialogTitle:
+                        type: string
+                      mainTabSummaryAssessmentLGR11:
+                        type: string
+                      mainTabSummaryAssessmentLGR22:
+                        type: string
+                      mainTabGrades:
+                        type: string
+                      mainTabAssessment:
+                        type: string
+                      summaryAssessment:
+                        type: string
+                      subjects:
+                        type: string
+                      comments:
+                        type: string
+                      back:
+                        type: string
+                      noSummaryAssessments:
+                        type: string
+                      schoolActions:
+                        type: string
+                      lblGroupedSummaryStatements:
+                        type: string
+                      summaryAssessmentsLgr22_pageTitle:
+                        type: string
+                      summaryAssessmentsLgr22_noResults:
+                        type: string
+                      tableHeading_Subject:
+                        type: string
+                      tableHeading_NotReached:
+                        type: string
+                      tableHeading_Expected:
+                        type: string
+                      tableHeading_Exceeding:
+                        type: string
+                      dialogTitleLGR22:
+                        type: string
+                      levelSelectorLabel:
+                        type: string
+                  urls:
+                    type: object
+                    properties:
+                      getReportsDialog:
+                        type: string
+                      downloadReport:
+                        type: string
+                      getNavigationData:
+                        type: string
+                      getGridItems:
+                        type: string
+                      getGridDialog:
+                        type: string
+                      getGeneralComments:
+                        type: string
+                      getComments:
+                        type: string
+                      getUolItems:
+                        type: string
+                      getUolDialog:
+                        type: string
+                      getUolGeneralComments:
+                        type: string
+                      getTaskItems:
+                        type: string
+                      getTaskDialog:
+                        type: string
+                      getLearningStepItems:
+                        type: string
+                      getLearningStepDialog:
+                        type: string
+                      getSelfAssessmentItems:
+                        type: string
+                      getSelfAssessmentDialog:
+                        type: string
+                      saveMark:
+                        type: string
+                      saveComment:
+                        type: string
+                      deleteComment:
+                        type: string
+                      updateSelfAssessment:
+                        type: string
+                      updateNotificationState:
+                        type: string
+                      getSummaryAssessments:
+                        type: string
+                      getSummaryAssessmentsLgr22:
+                        type: string
+                      getSummaryAssessmentsForGym:
+                        type: string
+      parameters:
+      - name: codename
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: action
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: tab
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: _
+        in: query
+        required: false
+        schema:
+          type: number
+  /communication/communication/appData:
+    post:
+      summary: POST appdata
+      description: Get communication appData
+      tags:
+      - Communication
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  hasNewsAccess:
+                    type: boolean
+                  thirdSecurityInitData:
+                    type: object
+                  linkTypeFilters:
+                    type: object
+                    properties:
+                      '1008':
+                        type: string
+                      '1010':
+                        type: string
+                      '1013':
+                        type: string
+                      '1015':
+                        type: string
+                      '1017':
+                        type: string
+                      '1032':
+                        type: string
+                      '2077':
+                        type: string
+                      '2078':
+                        type: string
+                      '2079':
+                        type: string
+                      '0':
+                        type: string
+                  consentViewConfig:
+                    type: object
+                    properties:
+                      hasConsentsAccess:
+                        type: boolean
+                      hasConsentWithoutBankIdLicense:
+                        type: boolean
+                      hasConsentWithBankIdLicense:
+                        type: boolean
+                      isLoggedInWithBankId:
+                        type: boolean
+                      pupilIM2Id:
+                        type: number
+                      parentIM2Id:
+                        type: number
+                      culture:
+                        type: string
+                      groupsIds:
+                        type: string
+                      countOfGuardians:
+                        type: number
+                      establishmentId:
+                        type: number
+                      translations:
+                        type: object
+                        properties:
+                          consents:
+                            type: string
+                          consentsCurrent:
+                            type: string
+                          consentsPast:
+                            type: string
+                          consentsNoActiveMsg:
+                            type: string
+                          consentsNoExpiredMsg:
+                            type: string
+                          consentsGiveRefuse:
+                            type: string
+                          consentsIGiveConsent:
+                            type: string
+                          consentsConfirmation:
+                            type: string
+                          consentsConfirmationBankID:
+                            type: string
+                          consentsSignWithBankIDBtn:
+                            type: string
+                          consentsGiveBtn:
+                            type: string
+                          consentsRefuseBtn:
+                            type: string
+                          commonCancel:
+                            type: string
+                          commonClose:
+                            type: string
+                          commonStatus:
+                            type: string
+                          commonYes:
+                            type: string
+                          commonApproved:
+                            type: string
+                          consentsGiven:
+                            type: string
+                          consentsRefused:
+                            type: string
+                          consentForm:
+                            type: string
+                          consentsExpiredDate:
+                            type: string
+                          consentsExpiryDate:
+                            type: string
+                          consentsExpiredOn:
+                            type: string
+                          consentsExpiresOn:
+                            type: string
+                          consentsFailedToChangeConsent:
+                            type: string
+                          consentsExpiredWithoutDecision:
+                            type: string
+                          consentsAwaitingYourDecision:
+                            type: string
+                          consentsAwaitingAnotherDecision:
+                            type: string
+                          consentsRefuseConsent:
+                            type: string
+                          consentsConfirmRefuseConsentDescription:
+                            type: string
+                          refused:
+                            type: string
+                          noDecision:
+                            type: string
+                          consentsNoCurrentConsentsFound:
+                            type: string
+                          consentsNoPastConsentsFound:
+                            type: string
+                          commonEdit:
+                            type: string
+                          commonActions:
+                            type: string
+                          consentsProvideDecision:
+                            type: string
+                          consentsProvideConsentDecision:
+                            type: string
+                          approved:
+                            type: string
+                          partialApproved:
+                            type: string
+                          new:
+                            type: string
+                          expired:
+                            type: string
+                          consentsExpiredRequest:
+                            type: string
+                          consentsNoConsentRegistered:
+                            type: string
+                          consentsHalfRegistered:
+                            type: string
+                          noSelectResultsThatMatchInput:
+                            type: string
+                          communicationConsentsGiveWithBankID:
+                            type: string
+                          communicationConsentsRefuseWithBankID:
+                            type: string
+                          consentsBankIdSigningFailed:
+                            type: string
+                          consentsBankIdSigningInstructions:
+                            type: string
+                          consentsBankIdSigningComplete:
+                            type: string
+                          commonCloseTabThankYou:
+                            type: string
+                          commonCloseTabInstructions:
+                            type: string
+                      urls:
+                        type: object
+                        properties:
+                          getCurrentList:
+                            type: string
+                          getDetails:
+                            type: string
+                          createConsent:
+                            type: string
+                          simpleBankIdSign:
+                            type: string
+                          bankIdSign:
+                            type: string
+                          bankIdCollect:
+                            type: string
+                          grandIdSign:
+                            type: string
+                          grandIdCollect:
+                            type: string
+                          initializeBankIdSigning:
+                            type: string
+                          getBankIdSignStatus:
+                            type: string
+                          createResponseAfterBankIdSigning:
+                            type: string
+                          initializeGrandIdSigning:
+                            type: string
+                          getGrandIdSignStatus:
+                            type: string
+                          createResponseAfterGrandIdSigning:
+                            type: string
+                  translations:
+                    type: object
+                    properties:
+                      communication:
+                        type: string
+                      sort:
+                        type: string
+                      filterSearch:
+                        type: string
+                      filter:
+                        type: string
+                      more:
+                        type: string
+                      downloadAttachment:
+                        type: string
+                      dateAdded:
+                        type: string
+                      author:
+                        type: string
+                      title:
+                        type: string
+                      name:
+                        type: string
+                      description:
+                        type: string
+                      tags:
+                        type: string
+                      types:
+                        type: string
+                      url:
+                        type: string
+                      copy:
+                        type: string
+                      communicationTypeTabs:
+                        type: string
+                      news:
+                        type: string
+                      newsSearch:
+                        type: string
+                      newsNoResults:
+                        type: string
+                      newsErrorLoadingImage:
+                        type: string
+                      newsItemImage:
+                        type: string
+                      newsNoItemsToShow:
+                        type: string
+                      by:
+                        type: string
+                      on:
+                        type: string
+                      documents:
+                        type: string
+                      documentsNoItemsToShow:
+                        type: string
+                      links:
+                        type: string
+                      linksNoItemsToShow:
+                        type: string
+                      consents:
+                        type: string
+                      consentsPast:
+                        type: string
+                  urls:
+                    type: object
+                    properties:
+                      getNewsList:
+                        type: string
+                      getDocumentsList:
+                        type: string
+                      getLinksList:
+                        type: string
+      parameters:
+      - name: _
+        in: query
+        required: false
+        schema:
+          type: number
+  /Communication/News/GetNewsList:
+    post:
+      summary: POST getnewslist
+      description: Get news on communication page
+      tags:
+      - Communication
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: number
+                        title:
+                          type: string
+                        content:
+                          type: string
+                        publishedDate:
+                          type: string
+                        publishedDateString:
+                          type: string
+                        publishedBy:
+                          type: string
+                        newsImageUrl:
+                          type: string
+                        newsThumbnailImageUrl:
+                          type: string
+                        attachments:
+                          type: array
+                          items: {}
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                pageSize:
+                  type: number
+                sortBy:
+                  type: string
+  /Communication/Documents/GetDocumentsList:
+    post:
+      summary: POST getdocumentslist
+      description: Get documents on communication page
+      tags:
+      - Communication
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  totalItemCount:
+                    type: number
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: number
+                        title:
+                          type: string
+                        description:
+                          type: object
+                        type:
+                          type: string
+                        fileType:
+                          type: string
+                        fileSize:
+                          type: number
+                        fileUrl:
+                          type: string
+                        publishedDateString:
+                          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                typeIds:
+                  type: string
+                sortBy:
+                  type: string
+                page:
+                  type: number
+                pageSize:
+                  type: number
+  /Resources/Resource/Download/{id}:
+    get:
+      summary: GET download by id
+      description: Get a download by id
+      tags:
+      - Resources
+      responses:
+        '200':
+          description: OK
+          content: {}
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: api
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: ModuleType
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: ConnectionId
+        in: query
+        required: false
+        schema:
+          type: number
+  /Communication/Links/GetLinksList:
+    post:
+      summary: POST getlinkslist
+      description: Get links on communication page
+      tags:
+      - Communication
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  totalItemCount:
+                    type: number
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: number
+                        name:
+                          type: string
+                        description:
+                          type: string
+                        type:
+                          type: object
+                        url:
+                          type: string
+                        publishedDate:
+                          type: string
+                        publishedDateString:
+                          type: string
+                        publishedBy:
+                          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                typeIds:
+                  type: string
+                sortBy:
+                  type: string
+                page:
+                  type: number
+                pageSize:
+                  type: number
+  /account/preferences/appData:
+    post:
+      summary: POST appdata
+      description: Get appData for preferences
+      tags:
+      - Account
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  translations:
+                    type: object
+                    properties:
+                      languageLabel:
+                        type: string
+                      titleLabel:
+                        type: string
+                      nameLabel:
+                        type: string
+                      firstNameLabel:
+                        type: string
+                      userTitleLabel:
+                        type: string
+                      lastNameLabel:
+                        type: string
+                      homeAddressLabel:
+                        type: string
+                      cityLabel:
+                        type: string
+                      emailLabel:
+                        type: string
+                      confirmEmailLabel:
+                        type: string
+                      telMobileLabel:
+                        type: string
+                      telHomeLabel:
+                        type: string
+                      telWorkLabel:
+                        type: string
+                      messageAllLabel:
+                        type: string
+                      newsAllLabel:
+                        type: string
+                      postCode:
+                        type: string
+                      save:
+                        type: string
+                      cancel:
+                        type: string
+                      emailsNotMatch:
+                        type: string
+                      privacyPupilSwitcherTitler:
+                        type: string
+                      privacyInfoDescription:
+                        type: string
+                      emailEmpty:
+                        type: string
+                      accountSettingsLabel:
+                        type: string
+                      usernameLabel:
+                        type: string
+                      changeLanguageLabel:
+                        type: string
+                      usernameHintLabel:
+                        type: string
+                      emailAsUsernameMessageLabel:
+                        type: string
+                      returnToList:
+                        type: string
+                      preferences:
+                        type: string
+                      makeVisibleInContactListSwitcherTitle:
+                        type: string
+                      privacyTitle:
+                        type: string
+                      privacyText:
+                        type: string
+                      privacyLink:
+                        type: string
+                  privacyUrl:
+                    type: string
+                  sections:
+                    type: object
+                    properties:
+                      accountSettings:
+                        type: object
+                        properties:
+                          languageOptions:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                key:
+                                  type: string
+                                value:
+                                  type: string
+                                cultureCode:
+                                  type: string
+                                selected:
+                                  type: boolean
+                          username:
+                            type: string
+                          showUsername:
+                            type: boolean
+                          codeName:
+                            type: string
+                          title:
+                            type: string
+                          translations:
+                            type: object
+                            properties: {}
+                          urls:
+                            type: object
+                            properties:
+                              save:
+                                type: string
+                      privacy:
+                        type: object
+                        properties:
+                          showName:
+                            type: boolean
+                          showAddress:
+                            type: boolean
+                          showPhone:
+                            type: boolean
+                          showMobile:
+                            type: boolean
+                          pupils:
+                            type: object
+                          studentId:
+                            type: object
+                          onlyShowPrivacyPolicy:
+                            type: boolean
+                          isChildVisibleInContactList:
+                            type: boolean
+                          codeName:
+                            type: string
+                          title:
+                            type: string
+                          translations:
+                            type: object
+                            properties: {}
+                          urls:
+                            type: object
+                            properties: {}
+                      pushNotifications:
+                        type: object
+                        properties:
+                          notifications:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                id:
+                                  type: number
+                                appCodeName:
+                                  type: string
+                                typeName:
+                                  type: string
+                                typeDescription:
+                                  type: string
+                                isSelected:
+                                  type: boolean
+                          codeName:
+                            type: string
+                          title:
+                            type: string
+                          translations:
+                            type: object
+                            properties: {}
+                          urls:
+                            type: object
+                            properties:
+                              updateNotification:
+                                type: string
+      parameters:
+      - name: _
+        in: query
+        required: false
+        schema:
+          type: number
+  /NotificationApp/NotificationApp/appData:
+    post:
+      summary: POST appdata
+      description: Get notifications appData
+      tags:
+      - NotificationApp
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  notifications:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: number
+                        title:
+                          type: string
+                        subTitle:
+                          type: string
+                        subjectsCourses:
+                          type: string
+                        dateSent:
+                          type: string
+                        appType:
+                          type: string
+                        state:
+                          type: string
+                        type:
+                          type: string
+                        url:
+                          type: string
+                        orderDate:
+                          type: string
+                        pupilIM2Id:
+                          type: number
+                        pupilSourceId:
+                          type: string
+                        currentlySelectedPupil:
+                          type: boolean
+                        entityTypeString:
+                          type: string
+                  timestamp:
+                    type: string
+                  translations:
+                    type: object
+                    properties:
+                      title:
+                        type: string
+                      notificationsCleared:
+                        type: string
+                      noNotifications:
+                        type: string
+                      pupilName:
+                        type: string
+                      clearList:
+                        type: string
+                      undo:
+                        type: string
+                      timeFormatJustNow:
+                        type: string
+                      timeFormatMinutes:
+                        type: string
+                      timeFormatHours:
+                        type: string
+                      timeFormatYesterday:
+                        type: string
+                      new:
+                        type: string
+                  urls:
+                    type: object
+                    properties:
+                      getAppNotifications:
+                        type: string
+                      updateState:
+                        type: string
+  /attendance/attendance/GetAttendanceList:
+    post:
+      summary: POST getattendancelist
+      tags:
+      - Attendance
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  translations:
+                    type: object
+                    properties:
+                      listTitle:
+                        type: string
+                      paging:
+                        type: string
+                      filter:
+                        type: string
+                  headers:
+                    type: object
+                    properties:
+                      date:
+                        type: object
+                        properties:
+                          displayText:
+                            type: string
+                          isSortable:
+                            type: boolean
+                          sortField:
+                            type: string
+                          sortBy:
+                            type: number
+                          sortDesc:
+                            type: number
+                      time:
+                        type: object
+                        properties:
+                          displayText:
+                            type: string
+                          isSortable:
+                            type: boolean
+                          sortField:
+                            type: string
+                          sortBy:
+                            type: number
+                          sortDesc:
+                            type: number
+                      subject:
+                        type: object
+                        properties:
+                          displayText:
+                            type: string
+                          isSortable:
+                            type: boolean
+                          sortField:
+                            type: string
+                          sortBy:
+                            type: number
+                          sortDesc:
+                            type: number
+                      reason:
+                        type: object
+                        properties:
+                          displayText:
+                            type: string
+                          isSortable:
+                            type: boolean
+                          sortField:
+                            type: string
+                          sortBy:
+                            type: number
+                          sortDesc:
+                            type: number
+                  filters:
+                    type: object
+                    properties:
+                      translations:
+                        type: object
+                        properties:
+                          apply:
+                            type: object
+                          clear:
+                            type: object
+                      filters:
+                        type: array
+                        items: {}
+                  listUrl:
+                    type: string
+                  itemUrl:
+                    type: object
+                  page:
+                    type: number
+                  pageSize:
+                    type: number
+                  totalItems:
+                    type: number
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: number
+                        shortDate:
+                          type: string
+                        longDate:
+                          type: string
+                        time:
+                          type: object
+                        subject:
+                          type: object
+                        reason:
+                          type: string
+                        comment:
+                          type: object
+                        registeredByName:
+                          type: object
+                        establishmentName:
+                          type: object
+                        minutes:
+                          type: object
+                        halfDaysCount:
+                          type: object
+                  allItemIds:
+                    type: object
+                  more:
+                    type: number
+  /attendance/attendance/SetSecondaryStatus:
+    post:
+      tags:
+      - Attendance
+      summary: POST setsecondarystatus
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                isApproved:
+                  type: boolean
+                id:
+                  type: number
+  /attendance/attendance/registerAttendance:
+    post:
+      tags:
+      - Attendance
+      summary: POST registerattendance
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: number
+                  comment:
+                    type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                present:
+                  type: boolean
+                day:
+                  type: string
+                canAddSicknessToTimeRegistration:
+                  type: boolean
+                RegType:
+                  type: string
+  /classlist/classlist/appData:
+    post:
+      tags:
+      - Classlist
+      summary: POST appdata
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  groupConfig:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: number
+                        title:
+                          type: string
+                        isStaffGroup:
+                          type: boolean
+                        items:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              address:
+                                type: string
+                                nullable: true
+                              canReceiveEmail:
+                                type: boolean
+                              establishmentId:
+                                type: string
+                              id:
+                                type: string
+                              name:
+                                type: string
+                              phone:
+                                type: string
+                                nullable: true
+                              email:
+                                type: string
+                                nullable: true
+                  urls:
+                    type: object
+                    properties:
+                      getClassList:
+                        type: string
+                      uploadFileUrl:
+                        type: string
+                      getPupil:
+                        type: string
+                      getStaff:
+                        type: string
+                      bulkEmailForm:
+                        type: string
+                      emailForm:
+                        type: string
+                      sendEmail:
+                        type: string
+                  userConfig:
+                    type: object
+                    properties:
+                      canSendEmail:
+                        type: boolean
+                      canViewPhone:
+                        type: boolean
+                      isPupil:
+                        type: boolean
+                  fileUploadConfig:
+                    type: object
+                    properties:
+                      allowedMimeTypes:
+                        type: array
+                        items:
+                          type: string
+                      maxUploadSize:
+                        type: number
+                  translations:
+                    type: object
+                    properties:
+                      contacts:
+                        type: string
+                      staffDetailsHeader:
+                        type: string
+                      pupilDetailsHeader:
+                        type: string
+                      parentDetailsHeader:
+                        type: string
+                      miscellaneousContacts:
+                        type: string
+                      discardEmailMessage:
+                        type: string
+                      discardEmailTitle:
+                        type: string
+                      yes:
+                        type: string
+                      groupTutorTitle:
+                        type: string
+                      sendSMS:
+                        type: string
+                      call:
+                        type: string
+                      sendEmail:
+                        type: string
+                      back:
+                        type: string
+                      cancel:
+                        type: string
+                      send:
+                        type: string
+                      attachFile:
+                        type: string
+                      group:
+                        type: string
+                      groupLabel:
+                        type: string
+                      addressLabel:
+                        type: string
+                      nameLabel:
+                        type: string
+                      relationLabel:
+                        type: string
+                      phoneLabel:
+                        type: string
+                      toLabel:
+                        type: string
+                      subjectLabel:
+                        type: string
+                      attachmentsLabel:
+                        type: string
+                      emailLabel:
+                        type: string
+                      mobileLabel:
+                        type: string
+                      mobileSMSLabel:
+                        type: string
+                      privacyMessage:
+                        type: string
+                      noEmailMessage:
+                        type: string
+                      attachmentTooLarge:
+                        type: string
+                      attachmentWrongType:
+                        type: string
+                      attachmentSizeSumTooLarge:
+                        type: string
+                      allParents:
+                        type: string
+                      appointmentTime:
+                        type: string
+                      composeEmail:
+                        type: string
+                      emailInfoText:
+                        type: string
+                      ccPlaceholder:
+                        type: string
+                      returnToList:
+                        type: string
+                      noEmail:
+                        type: string
+                      pleaseSelect:
+                        type: string
+                      ccButton:
+                        type: string
+                      ccLabel:
+                        type: string
+                      addAttachments:
+                        type: string
+                      typeYourMessageHere:
+                        type: string
+                      noResultsMessage:
+                        type: string
+      parameters:
+      - name: _
+        in: query
+        required: false
+        schema:
+          type: number
+  /ClassList/classlist/GetPupil:
+    post:
+      tags:
+      - Classlist
+      summary: POST getpupil
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  details:
+                    type: object
+                    properties:
+                      groups:
+                        type: string
+                      isTutor:
+                        type: boolean
+                      id:
+                        type: string
+                      name:
+                        type: string
+                      address:
+                        type: string
+                      phone:
+                        type: string
+                      mobile:
+                        type: string
+                        nullable: true
+                      canViewAddresses:
+                        type: boolean
+                      canViewPhone:
+                        type: boolean
+                      canViewRelationship:
+                        type: boolean
+                  parents:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        relation:
+                          type: string
+                        canEmail:
+                          type: boolean
+                        canViewName:
+                          type: boolean
+                        canViewMobile:
+                          type: boolean
+                        id:
+                          type: string
+                        name:
+                          type: string
+                        groups:
+                          type: string
+                          nullable: true
+                        address:
+                          type: string
+                        phone:
+                          type: string
+                        mobile:
+                          type: string
+                        isTutor:
+                          type: boolean
+                        canViewAddresses:
+                          type: boolean
+                        canViewPhone:
+                          type: boolean
+                        canViewRelationship:
+                          type: boolean
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                establishmentId:
+                  type: object
+  /ClassList/classlist/GetStaff:
+    post:
+      tags:
+      - Classlist
+      summary: POST getstaff
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  details:
+                    type: object
+                    properties:
+                      appointmentHours:
+                        type: string
+                      pictureUrl:
+                        type: string
+                      id:
+                        type: string
+                      name:
+                        type: string
+                      groups:
+                        type: string
+                        nullable: true
+                      address:
+                        type: string
+                        nullable: true
+                      phone:
+                        type: string
+                        nullable: true
+                      mobile:
+                        type: string
+                        nullable: true
+                      isTutor:
+                        type: boolean
+                      canViewAddresses:
+                        type: boolean
+                      canViewPhone:
+                        type: boolean
+                      canViewRelationship:
+                        type: boolean
+                  parents:
+                    type: array
+                    items: {}
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                establishmentId:
+                  type: string
+  /ClassList/ClassList/GetStaffPicture:
+    get:
+      tags:
+      - Classlist
+      summary: GET getstaffpicture
+      responses:
+        '200':
+          description: OK
+          content: {}
+      parameters:
+      - name: id
+        in: query
+        required: false
+        schema:
+          type: number
+  /task/task/appData:
+    post:
+      tags:
+      - Task
+      summary: POST appdata
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  maxUploadSize:
+                    type: number
+                  allowedMimeTypes:
+                    type: array
+                    items:
+                      type: string
+                  allowedExtensions:
+                    type: array
+                    items:
+                      type: string
+                  taskResults:
+                    type: object
+                    properties:
+                      items:
+                        type: array
+                        items: {}
+                      more:
+                        type: number
+                      totalOverdue:
+                        type: number
+                      totalDue:
+                        type: number
+                      totalDone:
+                        type: number
+                  filterOption:
+                    type: object
+                    properties:
+                      subjects:
+                        type: object
+                        properties:
+                          defaultText:
+                            type: string
+                          options:
+                            type: array
+                            items: {}
+                      teachers:
+                        type: object
+                        properties:
+                          defaultText:
+                            type: string
+                          options:
+                            type: array
+                            items: {}
+                      academicYears:
+                        type: object
+                        properties:
+                          defaultText:
+                            type: object
+                          options:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                key:
+                                  type: string
+                                value:
+                                  type: string
+                                selected:
+                                  type: boolean
+                      courses:
+                        type: object
+                        properties:
+                          defaultText:
+                            type: string
+                          options:
+                            type: array
+                            items: {}
+                      showCoursesFilter:
+                        type: boolean
+                  isRestricted:
+                    type: boolean
+                  messageSubjectSize:
+                    type: number
+                  canSendMessages:
+                    type: boolean
+                  translations:
+                    type: object
+                    properties:
+                      noResultsMessage:
+                        type: string
+                      comments:
+                        type: string
+                      file:
+                        type: string
+                      link:
+                        type: string
+                      reference:
+                        type: string
+                      resourcesHeader:
+                        type: string
+                      curriculumHeader:
+                        type: string
+                      activityHeader:
+                        type: string
+                      milestoneHeader:
+                        type: string
+                      overdue:
+                        type: string
+                      due:
+                        type: string
+                      done:
+                        type: string
+                      back:
+                        type: string
+                      readMore:
+                        type: string
+                      show:
+                        type: string
+                      hide:
+                        type: string
+                      addNote:
+                        type: string
+                      optionalPartsMessage:
+                        type: string
+                      optionalPartsButton:
+                        type: string
+                      returnToList:
+                        type: string
+                      previousTask:
+                        type: string
+                      nextTask:
+                        type: string
+                      pageCount:
+                        type: string
+                      milestone:
+                        type: string
+                      addMilestone:
+                        type: string
+                      addFile:
+                        type: string
+                      addMessage:
+                        type: string
+                      edit:
+                        type: string
+                      save:
+                        type: string
+                      send:
+                        type: string
+                      cancel:
+                        type: string
+                      filterTasks:
+                        type: string
+                      filterBy:
+                        type: string
+                      subject:
+                        type: string
+                      teacher:
+                        type: string
+                      selectSubject:
+                        type: string
+                      selectTeacher:
+                        type: string
+                      apply:
+                        type: string
+                      clear:
+                        type: string
+                      filterHelperMessage:
+                        type: string
+                      filterHelperLinkText:
+                        type: string
+                      optionalParts:
+                        type: string
+                      previousPage:
+                        type: string
+                      nextPage:
+                        type: string
+                      yourNote:
+                        type: string
+                      attachmentWrongType:
+                        type: string
+                      attachmentSizeSumTooLarge:
+                        type: string
+                      uploading:
+                        type: string
+                      editMilestones:
+                        type: string
+                      submit:
+                        type: string
+                      unsubmit:
+                        type: string
+                      dateFormat:
+                        type: string
+                      altFormat:
+                        type: string
+                      add:
+                        type: string
+                      fileList:
+                        type: string
+                      document:
+                        type: string
+                      addO365File:
+                        type: string
+                      noResultsFound:
+                        type: string
+                      page:
+                        type: string
+                      previous:
+                        type: string
+                      next:
+                        type: string
+                      taskHandInSelectAnyFile:
+                        type: string
+                      sendMessage:
+                        type: string
+                      newMessage:
+                        type: string
+                      title:
+                        type: string
+                      download:
+                        type: string
+                      errorLoadingImage:
+                        type: string
+                      close:
+                        type: string
+                      assignments:
+                        type: string
+                      noTasksToShow:
+                        type: string
+                      goodJob:
+                        type: string
+                      noOverdueTasks:
+                        type: string
+                      completedAllTasks:
+                        type: string
+                      noDueTasks:
+                        type: string
+                      workOnOverdueTasks:
+                        type: string
+                      workOnDueTasks:
+                        type: string
+                      notCompletedAnyTasks:
+                        type: string
+                      pleaseNote:
+                        type: string
+                      plagiarismWarning:
+                        type: string
+                      optOut:
+                        type: string
+                  urls:
+                    type: object
+                    properties:
+                      getTask:
+                        type: string
+                      getTasks:
+                        type: string
+                      setNote:
+                        type: string
+                      uploadHandIn:
+                        type: string
+                      downloadHandIn:
+                        type: string
+                      deleteHandIn:
+                        type: string
+                      editMilestones:
+                        type: string
+                      addComment:
+                        type: string
+                      setMilestoneStatus:
+                        type: string
+                      setTaskStatus:
+                        type: string
+                      acknowledgeOptionalParts:
+                        type: string
+                      addOffice365File:
+                        type: string
+                      uploadThirdPartyHandIns:
+                        type: string
+                      sendMessage:
+                        type: string
+      parameters:
+      - name: _
+        in: query
+        required: false
+        schema:
+          type: number
+  /Resources/Resource/Thumbnail/{id}:
+    get:
+      summary: GET thumbnail by id
+      tags:
+      - Resources
+      responses:
+        '200':
+          description: OK
+          content: {}
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: api
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: ModuleType
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: ConnectionId
+        in: query
+        required: false
+        schema:
+          type: number
+      - name: width
+        in: query
+        required: false
+        schema:
+          type: number
+      - name: height
+        in: query
+        required: false
+        schema:
+          type: number
+  /Communication/Consents/GetCurrentList:
+    post:
+      summary: POST getcurrentlist
+      tags:
+      - Communication
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  totalItemCount:
+                    type: number
+                  items:
+                    type: array
+                    items: {}
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                PupilIM2Id:
+                  type: number
+                ParentIM2Id:
+                  type: number
+                GroupsIds:
+                  type: string
+                CountOfGuardians:
+                  type: number
+                EstablishmentId:
+                  type: number
+  /AssessmentV2/SummaryAssessments/GetSummaryAssessmentsLgr22:
+    post:
+      tags:
+      - AssessmentV2
+      summary: POST getsummaryassessmentslgr22
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  summaryAssessmentMarks:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        subject:
+                          type: string
+                        id:
+                          type: number
+                        groupedCompetenceId:
+                          type: number
+                        hasMarks:
+                          type: boolean
+                        markState:
+                          type: number
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                termId:
+                  type: string
+  /AssessmentV2/AssessmentV2/GetNavigationItems:
+    post:
+      summary: POST getnavigationitems
+      tags:
+      - AssessmentV2
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  uolItemsList:
+                    type: array
+                    items: {}
+                  gridItemsList:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        hasNew:
+                          type: boolean
+                        title:
+                          type: string
+                        id:
+                          type: number
+                  selfAssessmentItemsList:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        hasNew:
+                          type: boolean
+                        title:
+                          type: string
+                        id:
+                          type: number
+                  navigationItemsList:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        linkedGrids:
+                          type: array
+                          items: {}
+                        linkedTasks:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              id:
+                                type: number
+                              isNew:
+                                type: boolean
+                        linkedLearningSteps:
+                          type: array
+                          items: {}
+                        linkedUols:
+                          type: array
+                          items: {}
+                        linkedSelfAssessments:
+                          type: array
+                          items:
+                            type: number
+                        isOtherAssessment:
+                          type: boolean
+                        hasGrids:
+                          type: boolean
+                        hasUols:
+                          type: boolean
+                        hasSelfAssessments:
+                          type: boolean
+                        hasTasks:
+                          type: boolean
+                        hasNewTask:
+                          type: boolean
+                        hasLearningSteps:
+                          type: boolean
+                        hasNewLearningStep:
+                          type: boolean
+                        hasNewSelfAssessment:
+                          type: boolean
+                        title:
+                          type: string
+                        id:
+                          type: number
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                academicYearId:
+                  type: string
+  /AssessmentV2/AssessmentV2SelfAssessment/GetItems/{id}:
+    post:
+      summary: POST getitems by id
+      tags:
+      - AssessmentV2
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  statementItemsList:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        selfAssessment:
+                          type: object
+                          properties:
+                            iconUrl:
+                              type: string
+                            isBlankMark:
+                              type: boolean
+                            hasComments:
+                              type: boolean
+                            hasValue:
+                              type: boolean
+                            mark:
+                              type: object
+                            markId:
+                              type: object
+                            markTextValue:
+                              type: object
+                            markNumericValue:
+                              type: object
+                            markOptionColour:
+                              type: object
+                            markSchemeType:
+                              type: object
+                        id:
+                          type: number
+                        text:
+                          type: string
+                        headerLabel:
+                          type: string
+                        aspectType:
+                          type: string
+                        parentId:
+                          type: number
+                        groupedCompetenceId:
+                          type: number
+                        row:
+                          type: number
+                        order:
+                          type: number
+                        mark:
+                          type: object
+                        markId:
+                          type: object
+                        markTextValue:
+                          type: object
+                        markNumericValue:
+                          type: object
+                        hasComment:
+                          type: boolean
+                        hasEvidence:
+                          type: boolean
+                        markSchemeType:
+                          type: object
+                        templateId:
+                          type: number
+                        hasValue:
+                          type: boolean
+                        iconUrl:
+                          type: string
+                        markOptionColour:
+                          type: object
+                        markLastUpdated:
+                          type: string
+                        dateStamp:
+                          type: string
+                        orderingDate:
+                          type: object
+                        isBlankMark:
+                          type: boolean
+                        showMark:
+                          type: boolean
+                        isPublished:
+                          type: boolean
+                        latestGeneralComment:
+                          type: object
+                        latestGeneralCommentDate:
+                          type: object
+                        isLaroplan:
+                          type: boolean
+                  title:
+                    type: string
+                  contextId:
+                    type: number
+                  contextType:
+                    type: string
+                  parentItemsList:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        parentId:
+                          type: object
+                        title:
+                          type: string
+                        id:
+                          type: number
+                  templateItemsList:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: number
+                        text:
+                          type: string
+                        groupedSummaryCellId:
+                          type: number
+                  hasNew:
+                    type: boolean
+                  hasReports:
+                    type: boolean
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: academicYearId
+        in: query
+        required: false
+        schema:
+          type: number
+  /AssessmentV2/AssessmentV2Task/GetItems/{id}:
+    post:
+      summary: POST getitems by id
+      tags:
+      - AssessmentV2
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: object
+                  contextId:
+                    type: number
+                  contextType:
+                    type: string
+                  statementItemsList:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: number
+                        text:
+                          type: object
+                        headerLabel:
+                          type: string
+                        aspectType:
+                          type: string
+                        parentId:
+                          type: object
+                        groupedCompetenceId:
+                          type: object
+                        row:
+                          type: number
+                        order:
+                          type: number
+                        mark:
+                          type: object
+                        markId:
+                          type: number
+                        markTextValue:
+                          type: string
+                        markNumericValue:
+                          type: object
+                        hasComment:
+                          type: boolean
+                        hasEvidence:
+                          type: boolean
+                        markSchemeType:
+                          type: string
+                        templateId:
+                          type: object
+                        hasValue:
+                          type: boolean
+                        iconUrl:
+                          type: string
+                        markOptionColour:
+                          type: object
+                        markLastUpdated:
+                          type: string
+                        dateStamp:
+                          type: string
+                        orderingDate:
+                          type: object
+                        isBlankMark:
+                          type: boolean
+                        showMark:
+                          type: boolean
+                        isPublished:
+                          type: boolean
+                        latestGeneralComment:
+                          type: object
+                        latestGeneralCommentDate:
+                          type: object
+                        isLaroplan:
+                          type: boolean
+                  parentItemsList:
+                    type: array
+                    items: {}
+                  templateItemsList:
+                    type: array
+                    items: {}
+                  hasNew:
+                    type: boolean
+                  hasReports:
+                    type: boolean
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: academicYearId
+        in: query
+        required: false
+        schema:
+          type: number
+  /NotificationApp/NotificationApp/UpdateAssessmentNotificationState:
+    post:
+      summary: POST updateassessmentnotificationstate
+      tags:
+      - NotificationApp
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                ids:
+                  type: array
+                  items:
+                    type: number
+                state:
+                  type: string
+  /AssessmentV2/MarkScheme/MarkSchemeIcon/{id}:
+    get:
+      summary: GET markschemeicon by id
+      tags:
+      - AssessmentV2
+      responses:
+        '200':
+          description: OK
+          content: {}
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+  /AssessmentV2/AssessmentV2Task/GetDialog/:
+    post:
+      summary: POST getdialog
+      tags:
+      - AssessmentV2
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  marks:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        mark:
+                          type: string
+                        dateStamp:
+                          type: string
+                        dateModified:
+                          type: string
+                        id:
+                          type: number
+                        comments:
+                          type: array
+                          items: {}
+                        aspectId:
+                          type: number
+                        markOptionId:
+                          type: number
+                        markSchemeId:
+                          type: number
+                        hasComment:
+                          type: boolean
+                        hasValue:
+                          type: boolean
+                        markNumericValue:
+                          type: object
+                        markTextValue:
+                          type: string
+                        nameStamp:
+                          type: string
+                        iconUrl:
+                          type: string
+                        markOptionColour:
+                          type: object
+                        markSchemeType:
+                          type: string
+                        isBlankMark:
+                          type: boolean
+                        statementText:
+                          type: string
+                  evidence:
+                    type: array
+                    items: {}
+                  statements:
+                    type: array
+                    items: {}
+                  dateStamp:
+                    type: object
+                  nameStamp:
+                    type: object
+                  text:
+                    type: string
+                  headerLabel:
+                    type: string
+                  summaryGroupedCellId:
+                    type: object
+                  groupedCompetenceId:
+                    type: object
+                  title:
+                    type: object
+                  id:
+                    type: number
+      parameters:
+      - name: id
+        in: query
+        required: false
+        schema:
+          type: number
+  /AssessmentV2/Grades/GetGrades:
+    post:
+      summary: POST getgrades
+      tags:
+      - AssessmentV2
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  hasPrimarySchoolGrade:
+                    type: boolean
+                  isFirstGradingTerm:
+                    type: boolean
+                  comment:
+                    type: string
+                  specialAidComment:
+                    type: string
+                  subjectsGradeData:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        pastGrade:
+                          type: object
+                        subjectName:
+                          type: string
+                        currentGrade:
+                          type: object
+                          properties:
+                            value:
+                              type: string
+                            isFinal:
+                              type: boolean
+                        showPrimarySchoolLabel:
+                          type: boolean
+                  onHoldSubjectsGradeData:
+                    type: array
+                    items: {}
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                termId:
+                  type: string
+  /uolv2/uolv2/appData:
+    post:
+      summary: POST appdata
+      tags:
+      - UolV2
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  uols:
+                    type: array
+                    items: {}
+                  subjects:
+                    type: array
+                    items: {}
+                  academicYears:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: number
+                        title:
+                          type: string
+                        selected:
+                          type: boolean
+                        hasUols:
+                          type: boolean
+                  currentAcademicYearId:
+                    type: number
+                  hasChosenPreviousAcademicYear:
+                    type: boolean
+                  lastChanged:
+                    type: string
+                  stateFilter:
+                    type: array
+                    items:
+                      type: string
+                  subjectFilter:
+                    type: array
+                    items: {}
+                  translations:
+                    type: object
+                    properties:
+                      unitsOfLearning:
+                        type: string
+                      viewAssessments:
+                        type: string
+                      hide:
+                        type: string
+                      show:
+                        type: string
+                      overdue:
+                        type: string
+                      due:
+                        type: string
+                      done:
+                        type: string
+                      showAll:
+                        type: string
+                      new:
+                        type: string
+                      openDownload:
+                        type: string
+                      close:
+                        type: string
+                      pageCount:
+                        type: string
+                      returnToList:
+                        type: string
+                      prevItem:
+                        type: string
+                      nextItem:
+                        type: string
+                      noTitle:
+                        type: string
+                      emptyCell:
+                        type: string
+                      status:
+                        type: string
+                      errorLoadingImage:
+                        type: string
+                      noItemsToShow:
+                        type: string
+                      download:
+                        type: string
+                      noUnits:
+                        type: string
+                      active:
+                        type: string
+                      notStarted:
+                        type: string
+                      finished:
+                        type: string
+                      filterSubjects:
+                        type: string
+                      filterTimeSpan:
+                        type: string
+                      filterStatus:
+                        type: string
+                      filterUnitListing:
+                        type: string
+                      filterButton:
+                        type: string
+                  urls:
+                    type: object
+                    properties:
+                      getUol:
+                        type: string
+                      getUols:
+                        type: string
+                      persistFilter:
+                        type: string
+                      allObjectives:
+                        type: string
+                      allTasks:
+                        type: string
+                      allTimelineEntries:
+                        type: string
+      parameters:
+      - name: _
+        in: query
+        required: false
+        schema:
+          type: number
+  /UolV2/UolV2/GetUols:
+    post:
+      summary: POST getuols
+      tags:
+      - UolV2
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  uols:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: number
+                        title:
+                          type: string
+                        subjects:
+                          type: array
+                          items:
+                            type: number
+                        state:
+                          type: string
+                  subjects:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: number
+                        name:
+                          type: string
+                        order:
+                          type: number
+                  academicYears:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: number
+                        title:
+                          type: string
+                        selected:
+                          type: boolean
+                        hasUols:
+                          type: boolean
+                  currentAcademicYearId:
+                    type: number
+                  hasChosenPreviousAcademicYear:
+                    type: boolean
+                  lastChanged:
+                    type: string
+                  stateFilter:
+                    type: array
+                    items:
+                      type: string
+                  subjectFilter:
+                    type: array
+                    items: {}
+                  translations:
+                    type: object
+                    properties: {}
+                  urls:
+                    type: object
+                    properties: {}
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                academicYearId:
+                  type: number
+                stateFilter:
+                  type: string
+  /UolV2/UolV2/GetUol:
+    post:
+      summary: POST getuol
+      tags:
+      - UolV2
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: number
+                  title:
+                    type: string
+                  disableEdit:
+                    type: boolean
+                  sections:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                        overview:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              label:
+                                type: string
+                              value:
+                                type: string
+                        title:
+                          type: string
+                        hasNew:
+                          type: boolean
+                        translations:
+                          type: object
+                          properties: {}
+                        urls:
+                          type: object
+                          properties: {}
+                  hasAssessments:
+                    type: boolean
+                  subjects:
+                    type: array
+                    items:
+                      type: number
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: number
+  /Documentation/Portfolio/AppData:
+    post:
+      summary: POST appdata
+      tags:
+      - Documentation
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  pagedList:
+                    type: object
+                    properties:
+                      translations:
+                        type: object
+                        properties:
+                          listTitle:
+                            type: object
+                          paging:
+                            type: object
+                          filter:
+                            type: object
+                      headers:
+                        type: object
+                        properties: {}
+                      filters:
+                        type: object
+                        properties:
+                          translations:
+                            type: object
+                            properties:
+                              apply:
+                                type: object
+                              clear:
+                                type: object
+                          filters:
+                            type: array
+                            items: {}
+                      listUrl:
+                        type: object
+                      itemUrl:
+                        type: object
+                      page:
+                        type: number
+                      pageSize:
+                        type: number
+                      totalItems:
+                        type: number
+                      items:
+                        type: array
+                        items: {}
+                      allItemIds:
+                        type: object
+                      more:
+                        type: number
+                  unreadCount:
+                    type: number
+                  totalItemCount:
+                    type: number
+                  semesterTypeList:
+                    type: object
+                    properties:
+                      currentStartDate:
+                        type: string
+                      currentEndDate:
+                        type: string
+                      currentSemesterType:
+                        type: string
+                      pupilPortfolioSemester:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            startDate:
+                              type: string
+                            endDate:
+                              type: string
+                            semesterType:
+                              type: string
+                  isShowCourses:
+                    type: boolean
+                  translations:
+                    type: object
+                    properties:
+                      commonTo:
+                        type: string
+                      noSubjects:
+                        type: string
+                      noCourses:
+                        type: string
+                      viewMoreCommets:
+                        type: string
+                      writeAComment:
+                        type: string
+                      viewLessCommets:
+                        type: string
+                      confirmCommentDeleteMessage:
+                        type: string
+                      deleteComment:
+                        type: string
+                      edit:
+                        type: string
+                      delete:
+                        type: string
+                      save:
+                        type: string
+                      cancel:
+                        type: string
+                      portfolioHeaderTitle:
+                        type: string
+                      commonBy:
+                        type: string
+                      filtersApply:
+                        type: string
+                      filtersClear:
+                        type: string
+                      filterTitle:
+                        type: string
+                      tasksFilterTimeframe:
+                        type: string
+                      tasksFilterSubject:
+                        type: string
+                      appPortfolio:
+                        type: string
+                      filtersSelectSubject:
+                        type: string
+                      subjectsAll:
+                        type: string
+                      filtersSelectSemester:
+                        type: string
+                      coursesAll:
+                        type: string
+                      portfolioFilterCourse:
+                        type: string
+                  urls:
+                    type: object
+                    properties:
+                      getPortfolioDetail:
+                        type: string
+                      savePortfolioComment:
+                        type: string
+                      deleteComment:
+                        type: string
+                      getPortfoliosBySemester:
+                        type: string
+      parameters:
+      - name: semesterType
+        in: query
+        required: false
+        schema:
+          type: string
+  /Documentation/Portfolio/GetPortfoliosBySemester:
+    post:
+      summary: POST getportfoliosbysemester
+      tags:
+      - Documentation
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  pagedList:
+                    type: object
+                    properties:
+                      translations:
+                        type: object
+                        properties:
+                          listTitle:
+                            type: object
+                          paging:
+                            type: object
+                          filter:
+                            type: object
+                      headers:
+                        type: object
+                        properties: {}
+                      filters:
+                        type: object
+                        properties:
+                          translations:
+                            type: object
+                            properties:
+                              apply:
+                                type: object
+                              clear:
+                                type: object
+                          filters:
+                            type: array
+                            items: {}
+                      listUrl:
+                        type: object
+                      itemUrl:
+                        type: object
+                      page:
+                        type: number
+                      pageSize:
+                        type: number
+                      totalItems:
+                        type: number
+                      items:
+                        type: array
+                        items: {}
+                      allItemIds:
+                        type: object
+                      more:
+                        type: number
+                  unreadCount:
+                    type: number
+                  totalItemCount:
+                    type: number
+                  semesterTypeList:
+                    type: object
+                    properties:
+                      currentStartDate:
+                        type: string
+                      currentEndDate:
+                        type: string
+                      currentSemesterType:
+                        type: string
+                      pupilPortfolioSemester:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            startDate:
+                              type: string
+                            endDate:
+                              type: string
+                            semesterType:
+                              type: string
+                  isShowCourses:
+                    type: boolean
+                  translations:
+                    type: object
+                    properties: {}
+                  urls:
+                    type: object
+                    properties: {}
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                isShowCourses:
+                  type: boolean
+                isCompactView:
+                  type: boolean
+                semesterType:
+                  type: string
+                startDate:
+                  type: string
+                endDate:
+                  type: string
+  /Documentation/Portfolio/GetPortfolioDetail/{id}:
+    post:
+      summary: POST getportfoliodetail by id
+      tags:
+      - Documentation
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: number
+                  portfolioDetail:
+                    type: object
+                    properties:
+                      id:
+                        type: number
+                      originalImage:
+                        type: string
+                      title:
+                        type: string
+                      courseSubjectList:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            shortName:
+                              type: string
+                            fullName:
+                              type: string
+                      publishDate:
+                        type: string
+                      publisherUser:
+                        type: object
+                        properties:
+                          displayName:
+                            type: string
+                          avatarId:
+                            type: string
+                          hasAvatar:
+                            type: boolean
+                          avatarUrl:
+                            type: string
+                          id:
+                            type: number
+                          title:
+                            type: string
+                          type:
+                            type: string
+                          colourCode:
+                            type: string
+                          initial:
+                            type: string
+                      pupil:
+                        type: object
+                        properties:
+                          displayName:
+                            type: string
+                          avatarId:
+                            type: string
+                          hasAvatar:
+                            type: boolean
+                          avatarUrl:
+                            type: string
+                          id:
+                            type: number
+                          title:
+                            type: string
+                          type:
+                            type: string
+                          colourCode:
+                            type: string
+                          initial:
+                            type: string
+                      fileType:
+                        type: string
+                      fileName:
+                        type: object
+                      fileExtension:
+                        type: string
+                      extensionType:
+                        type: string
+                      portfolioResourceId:
+                        type: number
+                      comment:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            text:
+                              type: string
+                            id:
+                              type: number
+                            dateTime:
+                              type: string
+                            permissions:
+                              type: array
+                              items: {}
+                            user:
+                              type: object
+                              properties:
+                                displayName:
+                                  type: string
+                                avatarId:
+                                  type: string
+                                hasAvatar:
+                                  type: boolean
+                                avatarUrl:
+                                  type: string
+                                id:
+                                  type: number
+                                title:
+                                  type: string
+                                type:
+                                  type: string
+                                colourCode:
+                                  type: string
+                                initial:
+                                  type: string
+                            parentId:
+                              type: number
+                            createdBy:
+                              type: string
+                            createdById:
+                              type: number
+                            canManageComment:
+                              type: boolean
+                            creationDate:
+                              type: string
+                      translations:
+                        type: object
+                        properties:
+                          portfolioDownload:
+                            type: string
+                      urls:
+                        type: object
+                        properties:
+                          downloadPortfolio:
+                            type: string
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+  /Documentation/Portfolio/SavePortfolioComment/:
+    post:
+      summary: POST saveportfoliocomment
+      tags:
+      - Documentation
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  commentItem:
+                    type: object
+                    properties:
+                      text:
+                        type: string
+                      id:
+                        type: number
+                      dateTime:
+                        type: string
+                      permissions:
+                        type: array
+                        items:
+                          type: string
+                      user:
+                        type: object
+                        properties:
+                          displayName:
+                            type: string
+                          avatarId:
+                            type: string
+                          hasAvatar:
+                            type: boolean
+                          avatarUrl:
+                            type: string
+                          id:
+                            type: number
+                          title:
+                            type: object
+                          type:
+                            type: string
+                          colourCode:
+                            type: string
+                          initial:
+                            type: string
+                      parentId:
+                        type: number
+                      createdBy:
+                        type: string
+                      createdById:
+                        type: boolean
+                      canManageComment:
+                        type: boolean
+                      creationDate:
+                        type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                comment:
+                  type: string
+                returnComment:
+                  type: number
+                connectionId:
+                  type: number
+                connectionType:
+                  type: string
+  /Documentation/IUP/GetPupilIUPFilter:
+    post:
+      summary: POST getpupiliupfilter
+      tags:
+      - Documentation
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  terms:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                        versions:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              id:
+                                type: number
+                              displayVersion:
+                                type: string
+                              isComplete:
+                                type: boolean
+  /Documentation/IUP/GetPupilIUPData:
+    post:
+      summary: POST getpupiliupdata
+      tags:
+      - Documentation
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  questions:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        question:
+                          type: string
+                        answer:
+                          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                iupId:
+                  type: number
+  /Documentation/SpecialPlan/GetSpecialPlan:
+    post:
+      summary: POST getspecialplan
+      tags:
+      - Documentation
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  versions:
+                    type: array
+                    items: {}
+  /Documentation/Conference/GetCurrentConference:
+    post:
+      summary: POST getcurrentconference
+      tags:
+      - Documentation
+      responses:
+        '200':
+          description: OK
+          content: {}
+  /Documentation/Conference/GetHistoryConferenceList:
+    post:
+      summary: POST gethistoryconferencelist
+      tags:
+      - Documentation
+      responses:
+        '200':
+          description: OK
+          content: {}
+  /timeregistration/timeregistration/appData:
+    post:
+      tags:
+      - Timeregistration
+      summary: POST appdata
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  timeRegistrationDates:
+                    type: array
+                    items: 
+                      type: string
+                      format: date
+                  currentCulture:
+                    type: string
+                  currentTimeZoneOffset:
+                    type: string
+                  translations:
+                    type: object
+                    properties:
+                      save:
+                        type: string
+                      onLeave:
+                        type: string
+                      repeatThisWeek:
+                        type: string
+                      pickupTimeExtends:
+                        type: string
+                      schoolClosed:
+                        type: string
+                      locked:
+                        type: string
+                      copyToSiblings:
+                        type: string
+                      cannotEditPastRegistrations:
+                        type: string
+                      cannotScheduleOutsideOpeningHours:
+                        type: string
+                      startBeforeEnd:
+                        type: string
+                      comment:
+                        type: string
+                      checkedIn:
+                        type: string
+                      checkedOut:
+                        type: string
+                      notCheckedIn:
+                        type: string
+                      notCheckedOut:
+                        type: string
+                      cannotEditPastComments:
+                        type: string
+                      lockedBySchool:
+                        type: string
+                      scheduleRepeatEvery:
+                        type: string
+                      repeatWeekPositiveNumber:
+                        type: string
+                      apply:
+                        type: string
+                      dataSaved:
+                        type: string
+                      futureRepeat:
+                        type: string
+                      copySchedule:
+                        type: string
+                      copySiblingsHelpText:
+                        type: string
+                      closeMessage:
+                        type: string
+                      headerTimeReg:
+                        type: string
+                      week:
+                        type: string
+                      jumpToWeek:
+                        type: string
+                      nextWeek:
+                        type: string
+                      lastWeek:
+                        type: string
+                      pastWeekWarning:
+                        type: string
+                      pastWeekCommentsWarning:
+                        type: string
+                      weeks:
+                        type: string
+                      today:
+                        type: string
+                      yesterday:
+                        type: string
+                      registrationDetails:
+                        type: string
+                      notCheckedInYet:
+                        type: string
+                      notCheckedOutYet:
+                        type: string
+                      thisWeek:
+                        type: string
+                      comments:
+                        type: string
+                      timeRegRowLocked:
+                        type: string
+                      commonCancel:
+                        type: string
+                      repeatWeekX:
+                        type: string
+                      repeatEvery:
+                        type: string
+                      repeatUntilPastError:
+                        type: string
+                      untilAfter:
+                        type: string
+                      atTime:
+                        type: string
+                      endTimeNextDay:
+                        type: string
+                      extendPickupTime:
+                        type: string
+                      editYourComment:
+                        type: string
+                      commentsAndMore:
+                        type: string
+                      timeRegistrationSaved:
+                        type: string
+                      timeRegistrationDataSavedDescription:
+                        type: string
+                      timesLockedBySchool:
+                        type: string
+                  urls:
+                    type: object
+                    properties:
+                      getTimeRegistrations:
+                        type: string
+                      saveTimeRegistrations:
+                        type: string
+                      getCalendarData:
+                        type: string
+                      getComments:
+                        type: string
+                      saveComment:
+                        type: string
+      parameters:
+      - name: _
+        in: query
+        required: false
+        schema:
+          type: number
+  /TimeRegistration/TimeRegistration/GetTimeRegistrations/:
+    post:
+      tags:
+      - Timeregistration
+      summary: POST gettimeregistrations
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  startDate:
+                    type: string
+                    format: date-time
+                  endDate:
+                    type: string
+                    format: date-time
+                  days:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        timeRegistrationId:
+                          type: number
+                        date:
+                          type: string
+                          format: date-time
+                        startDateTime:
+                          type: object
+                          format: date-time
+                          nullable: true
+                        endDateTime:
+                          type: object
+                          format: date-time
+                          nullable: true
+                        onLeave:
+                          type: boolean
+                        isLocked:
+                          type: boolean
+                        isSchoolClosed:
+                          type: boolean
+                        canEdit:
+                          type: boolean
+                        schoolClosedReason:
+                          type: string
+                        schoolOpeningTime:
+                          type: string
+                          format: date-time
+                        schoolClosingTime:
+                          type: string
+                          format: date-time
+                        hasUnreadComments:
+                          type: boolean
+                        hasComments:
+                          type: boolean
+                        canEditComment:
+                          type: boolean
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                date:
+                  type: string
+                showNextWeekIfNoMoreSchoolDays:
+                  type: boolean
+  /TimeRegistration/TimeRegistration/SaveTimeRegistrations/:
+    post:
+      tags:
+      - Timeregistration
+      summary: POST savetimeregistrations
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  notifications:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        message:
+                          type: string
+                          nullable: true
+                        title:
+                          type: string
+                        type:
+                          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                days:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      timeRegistrationId:
+                        type: number
+                      date:
+                        type: string
+                        format: date-time
+                      onLeave:
+                        type: boolean
+                      isLocked:
+                        type: boolean
+                      isSchoolClosed:
+                        type: boolean
+                      canEdit:
+                        type: boolean
+                      schoolClosedReason:
+                        type: string
+                      schoolOpeningTime:
+                        type: string
+                        format: date-time
+                      schoolClosingTime:
+                        type: string
+                        format: date-time
+                      hasUnreadComments:
+                        type: boolean
+                      hasComments:
+                        type: boolean
+                      canEditComment:
+                        type: boolean
+                      hasChanged:
+                        type: boolean
+                      registrationType:
+                        type: string
+                      commentText:
+                        type: string
+                      isCommentUpdated:
+                        type: boolean
+                      commentId:
+                        type: number
+                series:
+                  type: object
+  /Documentation/Specialplan/getspecialplan:
+    post:
+      summary: POST getspecialplan
+      tags:
+      - Documentation
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  versions:
+                    type: array
+                    items: {}
+  /Documentation/conference/gethistoryconferencelist:
+    post:
+      summary: POST gethistoryconferencelist
+      tags:
+      - Documentation
+      responses:
+        '200':
+          description: OK
+          content: {}
+  /Task/Task/GetTasks:
+    post:
+      summary: POST gettasks
+      tags:
+      - Task
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: number
+                        status:
+                          type: string
+                        dueDate:
+                          type: string
+                        subject:
+                          type: string
+                        title:
+                          type: string
+                        description:
+                          type: string
+                        read:
+                          type: number
+                        hasUnreadComments:
+                          type: boolean
+                        hasLinks:
+                          type: boolean
+                        hasFiles:
+                          type: boolean
+                        hasReferences:
+                          type: boolean
+                        showOptionalPartsMessage:
+                          type: boolean
+                        milestoneCount:
+                          type: number
+                        milestonesComplete:
+                          type: number
+                        assignedOn:
+                          type: string
+                        isOverdue:
+                          type: boolean
+                        isWithinCurrentTimeframe:
+                          type: boolean
+                        dueDateDateValue:
+                          type: string
+                        showOnedriveResource:
+                          type: boolean
+                        statusText:
+                          type: string
+                  more:
+                    type: number
+                  totalOverdue:
+                    type: number
+                  totalDue:
+                    type: number
+                  totalDone:
+                    type: number
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                academicYearId:
+                  type: string
+                subjects:
+                  type: string
+                  nullable: true
+                teachers:
+                  type: string
+                  nullable: true
+                courses:
+                  type: string
+                  nullable: true
+  /attendance/attendance/GetLeaveRequestList:
+    post:
+      summary: POST getleaverequestlist
+      tags:
+      - Attendance
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: number
+                    status:
+                      type: string
+                    requesterComment:
+                      type: string
+                    approverComment:
+                      type: string
+                      nullable: true
+                    createdBy:
+                      type: string
+                    approvedByTitle:
+                      type: string
+                    createdByTitle: 
+                      type: string
+                    fromDate:
+                      type: string
+                    fromTime:
+                      type: string
+                      nullable: true
+                    toDate:
+                      type: string
+                    toTime:
+                      type: string
+                      nullable: true
+                    updatedDate:
+                      type: string
+                    dateRangeTitle:
+                      type: string
+                    secondaryParentApproverId:
+                      type: number
+                      nullable: true
+                    secondaryParentApproverName:
+                      type: string
+                      nullable: true
+                    secondaryParentStatus:
+                      type: string
+                    secondaryParentApprovalDate:
+                      type: string
+                      nullable: true
+                    secondaryParentApprovalDateText:
+                      type: string
+                    secondaryApprovalText:
+                      type: string
+                    canDelete:
+                      type: boolean
+                    canApprove:
+                      type: boolean
+                    canDeny:
+                      type: boolean
+                    showDeleteButton:
+                      type: boolean
+                    showApproveButton:
+                      type: boolean
+                    showDenyButton:
+                      type: boolean
+                    isAwaitingResponseFromCurrentUser:
+                      type: boolean
+  /AssessmentV2/AssessmentV2SelfAssessment/GetDialog/:
+    post:
+      summary: POST getdialog
+      tags:
+      - AssessmentV2
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  comments:
+                    type: array
+                    items: {}
+                  assessmentMarkId:
+                    type: number
+                  aspectMarkSchemeId:
+                    type: number
+                  markSchemes:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: number
+                        isCurrentMarkScheme:
+                          type: boolean
+                        title:
+                          type: string
+                        markInterval:
+                          type: number
+                        maximumMark:
+                          type: number
+                        minimumMark:
+                          type: number
+                        markSchemeType:
+                          type: string
+                        markOptions:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              id:
+                                type: number
+                              value:
+                                type: number
+                              label:
+                                type: string
+                              colour:
+                                type: string
+                              iconUrl:
+                                type: string
+                              altText:
+                                type: object
+                              ordering:
+                                type: number
+                              markSchemeId:
+                                type: number
+                  isReadonly:
+                    type: boolean
+                  decimalSeparator:
+                    type: string
+                  readOnlyMessage:
+                    type: string
+                  marks:
+                    type: array
+                    items: {}
+                  evidence:
+                    type: array
+                    items: {}
+                  statements:
+                    type: array
+                    items: {}
+                  dateStamp:
+                    type: object
+                  nameStamp:
+                    type: object
+                  text:
+                    type: string
+                  headerLabel:
+                    type: string
+                  summaryGroupedCellId:
+                    type: object
+                  groupedCompetenceId:
+                    type: object
+                  title:
+                    type: object
+                  id:
+                    type: number
+      parameters:
+      - name: uol
+        in: query
+        required: false
+        schema:
+          type: number
+      - name: aspectId
+        in: query
+        required: false
+        schema:
+          type: number
+      - name: academicYearId
+        in: query
+        required: false
+        schema:
+          type: number
+servers:
+- url: https://hub.infomentor.se
+  description: The default server
+x-path-templates:
+# Remove the ignore: prefix to generate an endpoint with its URL
+# Lines that are closer to the top take precedence, the matching is greedy
+  []

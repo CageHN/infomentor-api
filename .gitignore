@@ -1,0 +1,31 @@
+# Secrets and session files
+credentials.json
+cookies.json
+cookiefile
+auth
+*.cookies
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+dist/
+build/
+.venv/
+venv/
+.env
+.python-version
+
+# Tests / tooling
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# Editor
+.idea/
+.vscode/
+*.swp
